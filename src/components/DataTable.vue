@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex justify-space-between mb-2">
-        <div class="w-50 w-md-25">
+        <div class="w-50 w-md-25 mt-4">
             <v-text-field v-model="name" density="compact" placeholder="Search by name..." hide-details></v-text-field>
         </div>
         <CreateProduct />
