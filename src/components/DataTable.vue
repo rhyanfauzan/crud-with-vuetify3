@@ -6,7 +6,7 @@
         <CreateProduct />
     </div>
     <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items="serverItems"
-        :items-length="totalItems" :loading="loading" :search="search" item-value="name" @update:options="loadItems">
+        :items-length="totalItems" :loading="loading" loading-text="Getting products.." :search="search" item-value="name" @update:options="loadItems">
         <template v-slot:[`item.actions`]="{ item }">
             <div class="d-flex justify-center">
                 <UpdateProduct :item="item" />
@@ -89,6 +89,7 @@ export default {
     },
     methods: {
         loadItems({ page, itemsPerPage, sortBy }) {
+            console.log(page, itemsPerPage, sortBy)
             this.loading = true
             GetProducts.fetch({ page, itemsPerPage, sortBy, search: { name: this.name } }).then(({ items, total }) => {
                 this.serverItems = items
@@ -96,11 +97,9 @@ export default {
                 this.loading = false
             })
         },
-        editItem(item) {
-            console.log(item)
-        },
     },
     mounted() {
+        this.loadItems({ page: 1, itemsPerPage: 5, sortBy: [] });
         fetchProducts();
     },
 }
