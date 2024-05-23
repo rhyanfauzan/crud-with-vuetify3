@@ -76,7 +76,7 @@ export default {
             { title: 'stock', key: 'stock', align: 'center' },
             { title: "Actions", key: "actions", align: "center", sortable: false }, // New actions column
         ],
-        serverItems: [],
+        serverItems: ref([]),
         loading: true,
         totalItems: 0,
         name: '',
@@ -89,7 +89,6 @@ export default {
     },
     methods: {
         loadItems({ page, itemsPerPage, sortBy }) {
-            console.log(page, itemsPerPage, sortBy)
             this.loading = true
             GetProducts.fetch({ page, itemsPerPage, sortBy, search: { name: this.name } }).then(({ items, total }) => {
                 this.serverItems = items
