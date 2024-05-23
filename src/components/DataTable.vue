@@ -18,7 +18,7 @@
 <script>
 import axios from "axios";
 import { ref } from "vue";
-import { BASE_URL } from "../config/common.js";
+import { BASE_URL } from "@/config/common.js";
 import CreateProduct from "./CreateProduct.vue";
 import DeleteProduct from "./DeleteProduct.vue";
 import UpdateProduct from "./UpdateProduct.vue";
