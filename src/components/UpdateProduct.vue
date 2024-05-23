@@ -2,10 +2,10 @@
     <div class="pa-4 text-center">
         <v-dialog v-model="dialog" max-width="600">
             <template v-slot:activator="{ props: activatorProps }">
-                <v-btn class="text-none font-weight-regular bg-teal" prepend-icon="mdi-pen" text="Update Product"
-                    v-bind="activatorProps"></v-btn>
+                <v-btn v-bind="activatorProps" icon="mdi-pen" variant="plain" @click="getSingleProduct($props.item)">
+                </v-btn>
             </template>
-            <v-form @submit.prevent="postProduct">
+            <v-form @submit.prevent="editProduct">
                 <v-card prepend-icon="mdi-image" title="Update Product">
                     <v-card-text>
                         <v-row dense>
@@ -60,9 +60,15 @@
 </template>
 <script>
 import axios from "axios";
+import { ref } from "vue";
 import { BASE_URL } from '@/config/common';
 
+const idItem = ref(0);
+
 export default {
+    props: {
+        item: Object
+    },
     data() {
         return {
             isLoading: false,
@@ -81,15 +87,15 @@ export default {
                 },
             ],
             snackbar: false,
-            text: 'Berhasil menambahkan product baru.',
+            text: 'Berhasil mengubah product.',
             timeout: 2500,
         };
     },
     methods: {
-        async addProduct() {
+        async updateProduct() {
             this.isLoading = true;
             try {
-                const response = await axios.post(`${BASE_URL}/products/add`, {
+                const response = await axios.put(`${BASE_URL}/products/${idItem.value}`, {
                     title: this.name,
                     brand: this.brand,
                     category: this.category,
@@ -110,9 +116,26 @@ export default {
                 this.isLoading = false;
             }
         },
-        postProduct() {
+        editProduct() {
             if (this.name != '' && this.brand != "" && this.category != "" && this.price != "") {
-                this.addProduct();
+                this.updateProduct();
+            }
+        },
+        async getSingleProduct(item) {
+            try {
+                const response = await axios
+                    .get(
+                        `${BASE_URL}/products/${item.id}`
+                    );
+                this.name = response.data.title;
+                this.brand = response.data.brand;
+                this.category = response.data.category;
+                this.price = response.data.price;
+                this.description = response.data.description;
+                this.stock = response.data.stock;
+                idItem.value = item.id;
+            } catch (error) {
+                console.error(error)
             }
         }
     },

@@ -7,6 +7,12 @@
     </div>
     <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items="serverItems"
         :items-length="totalItems" :loading="loading" :search="search" item-value="name" @update:options="loadItems">
+        <template v-slot:[`item.actions`]="{ item }">
+            <div class="d-flex justify-center">
+                <UpdateProduct :item="item" />
+            <DeleteProduct :item="item" />
+            </div>
+        </template>
     </v-data-table-server>
 </template>
 <script>
@@ -14,6 +20,8 @@ import axios from "axios";
 import { ref } from "vue";
 import { BASE_URL } from "../config/common.js";
 import CreateProduct from "./CreateProduct.vue";
+import DeleteProduct from "./DeleteProduct.vue";
+import UpdateProduct from "./UpdateProduct.vue";
 const products = ref([]);
 
 const fetchProducts = async () => {
@@ -66,6 +74,7 @@ export default {
             { title: 'category', key: 'category', align: 'center' },
             { title: 'price', key: 'price', align: 'center' },
             { title: 'stock', key: 'stock', align: 'center' },
+            { title: "Actions", key: "actions", align: "center", sortable: false }, // New actions column
         ],
         serverItems: [],
         loading: true,
@@ -77,9 +86,6 @@ export default {
         name() {
             this.search = String(Date.now())
         },
-        calories() {
-            this.search = String(Date.now())
-        },
     },
     methods: {
         loadItems({ page, itemsPerPage, sortBy }) {
@@ -89,6 +95,9 @@ export default {
                 this.totalItems = total
                 this.loading = false
             })
+        },
+        editItem(item) {
+            console.log(item)
         },
     },
     mounted() {
