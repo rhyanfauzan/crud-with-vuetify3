@@ -6,11 +6,12 @@
         <CreateProduct />
     </div>
     <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items="serverItems"
-        :items-length="totalItems" :loading="loading" loading-text="Getting products.." :search="search" item-value="name" @update:options="loadItems">
+        :items-length="totalItems" :loading="loading" loading-text="Getting products.." :search="search"
+        item-value="name" @update:options="loadItems">
         <template v-slot:[`item.actions`]="{ item }">
             <div class="d-flex justify-center">
                 <UpdateProduct :item="item" />
-            <DeleteProduct :item="item" />
+                <DeleteProduct :item="item" />
             </div>
         </template>
     </v-data-table-server>
@@ -36,34 +37,50 @@ const fetchProducts = async () => {
 
 const GetProducts = {
     async fetch({ page, itemsPerPage, sortBy, search }) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                const start = (page - 1) * itemsPerPage
-                const end = start + itemsPerPage
-                const items = products.value.slice().filter(item => {
-                    if (search.name && !item.title.toLowerCase().includes(search.name.toLowerCase())) {
-                        return false
-                    }
+        if (products.value.length == 0) {
+            try {
+                // Fetch products from the server
+                const response = await axios.get(`${BASE_URL}/products`);
+                products.value = response.data.products;
 
-                    return true
-                })
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                return { items: [], total: 0 };
+            }
+        }
 
-                if (sortBy.length) {
-                    const sortKey = sortBy[0].key
-                    const sortOrder = sortBy[0].order
-                    items.sort((a, b) => {
-                        const aValue = a[sortKey]
-                        const bValue = b[sortKey]
-                        return sortOrder === 'desc' ? bValue - aValue : aValue - bValue
-                    })
-                }
+        // Simulate delay
+        // const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        // await delay(500);
 
-                const paginated = items.slice(start, end)
-                resolve({ items: paginated, total: items.length })
-            }, 500)
-        })
+        // Apply search filter
+        let items = products.value.slice().filter(item => {
+            if (search.name && !item.title.toLowerCase().includes(search.name.toLowerCase())) {
+                return false;
+            }
+            return true;
+        });
+
+        // Apply sorting
+        if (sortBy.length) {
+            const sortKey = sortBy[0].key;
+            const sortOrder = sortBy[0].order;
+            items.sort((a, b) => {
+                const aValue = a[sortKey];
+                const bValue = b[sortKey];
+                return sortOrder === 'desc' ? bValue - aValue : aValue - bValue;
+            });
+        }
+
+        // Apply pagination
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginated = items.slice(start, end);
+
+        return { items: paginated, total: items.length };
     },
-}
+};
+
 
 export default {
     data: () => ({
@@ -96,10 +113,6 @@ export default {
                 this.loading = false
             })
         },
-    },
-    mounted() {
-        this.loadItems({ page: 1, itemsPerPage: 5, sortBy: [] });
-        fetchProducts();
     },
 }
 </script>
